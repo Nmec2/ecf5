@@ -1,3 +1,46 @@
+@import "tailwindcss";
+
+@font-face {
+    font-family: "Poppins";
+    src: url('../fonts/Poppins-Regular.ttf');
+}
+
+@theme {
+    --default-font-family: "Poppins", "sans-serif";
+    --color-green-300: oklch(0.89 0.0351 161.35);
+    --color-green-400: oklch(0.42 0.0577 200.14);
+    --color-grey-300: oklch(0.32 0.013 17.85);
+}
+
+@keyframes blob {
+    0% {
+        transform: scale(1) translate(0, 0);
+        border-radius: 50% 50% 100% 60%;
+    }
+    25% {
+        transform: scale(1.2) translate(-10px, 10px);
+        border-radius: 60% 40% 50% 50%;
+    }
+    50% {
+        transform: scale(1) translate(25px, -10px);
+        border-radius: 50% 60% 40% 50%;
+    }
+    75% {
+        transform: scale(1.2) translate(-10px, -20px);
+        border-radius: 40% 50% 60% 50%;
+    }
+    100% {
+        transform: scale(1.0) translate(0, 0);
+        border-radius: 50% 50% 100% 60%;
+    }
+}
+
+.blob-animation {
+    animation: blob 6s infinite ease-in-out;
+    transition: transform 0.3s ease-in-out;
+}
+
+
 body {
-    background-color: skyblue;
+    background-color: #fff;
 }
