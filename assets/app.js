@@ -13,9 +13,42 @@ import { gsap } from "gsap";
 
 console.log('JavaScript file loaded');
 
-window.toggleMenu = function() {
-    const menu = document.getElementById('menu');
-    if (menu) {
-        menu.classList.toggle('hidden');
-    }
+const menuButton = document.getElementById('burger');
+const menu = document.getElementById('menu');
+const closeButton = document.getElementById('close');
+window.addEventListener('resize', handleResize);
+handleResize();
+
+if(closeButton) {
+    closeButton.addEventListener('click', closeMenu);
+}
+
+if(menuButton) {
+    menuButton.addEventListener('click', toggleMenu);
+}
+
+function toggleMenu() {
+    menu.classList.remove('hidden');
+    menu.classList.add('flex');
+    document.body.classList.toggle('overflow-hidden');
+}
+
+function closeMenu() {
+    menu.classList.add('hidden');
+    menu.classList.remove('flex');
+    document.body.classList.remove('overflow-hidden');
+}
+
+function handleResize() {
+        if (window.innerWidth >= 768) { // md breakpoint
+            menu.classList.remove('hidden');
+            menu.classList.add('flex');
+            menu.classList.add('gap-10');
+            document.body.classList.remove('overflow-hidden');
+        } else {
+            menu.classList.add('hidden');
+            menu.classList.remove('flex');
+            menu.classList.remove('gap-10');
+            document.body.classList.remove('overflow-hidden');
+        }
 }

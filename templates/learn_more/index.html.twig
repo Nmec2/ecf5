@@ -16,17 +16,17 @@
             </figure>
             <h2 class="text-grey-300">laCrèche.org</h2>
         </div>
-        <button id="burger" class="md:hidden text-3xl cursor-pointer text-green-400" onclick="toggleMenu()">
+        <button id="burger" class="md:hidden text-3xl cursor-pointer text-green-400" >
             &#9776;
         </button>
-        <div id="menu" class="gap-5 m-5 md:flex hidden absolute top-20 left-0 w-11/12 h-fit bg-green-300 md:static md:w-auto md:bg-transparent">
-            <a class="block p-3 pl-6 pr-6 rounded-sm border-2 border-green-400  text-xs  hover:bg-green-400 hover:text-white ease-in-out duration-150 texte-white" href="/" alt="Accueil">Accueil</a>
-            <a class="block p-3 pl-6 pr-6 rounded-sm border-2 border-green-400 text-xs text-white bg-green-400 " href="/learn-more" alt="En savoir plus">En savoir plus</a>
+        <div id="menu" class="hidden fixed inset-0 z-50 bg-green-300 flex flex-col items-center justify-center md:static md:w-auto md:bg-transparent md:flex-row md:relative">
+            <button id="close" class="absolute top-5 cursor-pointer right-5 text-4xl text-green-800 md:hidden" aria-label="Fermer le menu">&times;</button>
+            <a class="block p-3 pl-6 pr-6 rounded-sm border-2 border-green-400 text-xs hover:bg-green-400 hover:text-white ease-in-out duration-150" href="/" alt="Accueil">Accueil</a>
+            <a class="block p-3 pl-6 pr-6 rounded-sm border-2 border-green-400 bg-green-400 text-xs text-white" href="/learn-more" alt="En savoir plus">En savoir plus</a>
             <a class="block p-3 pl-6 pr-6 rounded-sm border-2 border-green-400 text-xs hover:bg-green-400 hover:text-white ease-in-out duration-150 " href="" alt="Connexion">Connexion</a>
         </div>
     </nav>
 </header>
-
 <main>
     
 </main>
