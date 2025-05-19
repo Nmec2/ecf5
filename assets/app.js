@@ -9,3 +9,13 @@ import './bootstrap.js';
 // any CSS you import will output into a single css file (app.css in this case)
 import './styles/app.css';
 
+import { gsap } from "gsap";
+
+console.log('JavaScript file loaded');
+
+window.toggleMenu = function() {
+    const menu = document.getElementById('menu');
+    if (menu) {
+        menu.classList.toggle('hidden');
+    }
+}
