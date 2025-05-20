@@ -11,5 +11,5 @@
     --color-green-300: oklch(0.89 0.0351 161.35);
     --color-green-400: oklch(0.42 0.0577 200.14);
     --color-grey-300: oklch(0.32 0.013 17.85);
+    --color-white: oklch(0.8853 0 0);
 }
-
