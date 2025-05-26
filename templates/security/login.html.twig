@@ -41,12 +41,11 @@
         <input type="password" name="_password" id="password" class="text-grey-300 bg-white p-2 mx-5 rounded-sm mb-9 indent-5" autocomplete="current-password" placeholder="Password" required>
         <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
 
-        <select name="role" class="text-grey-300 bg-white p-2 mx-5 rounded-sm mb-9 indent-5">
-            <option value="" disabled selected>Sélectionnez votre rôle</option>
+        {# <select name="role" class="text-grey-300 bg-white p-2 mx-5 rounded-sm mb-9 indent-5">
             <option value="ROLE_PARENT">Parent</option>
             <option value="ROLE_STAFF">Personnel</option>
             <option value="ROLE_ADMIN">Administrateur</option>
-        </select>
+        </select> #}
 
         <div class="mx-7 text-white mb-4 text-sm">
             <label>

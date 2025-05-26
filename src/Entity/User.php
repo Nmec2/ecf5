@@ -2,14 +2,14 @@
 
 namespace App\Entity;
 
-use App\Repository\ResponsableRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-#[ORM\Entity(repositoryClass: ResponsableRepository::class)]
+#[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
-class Responsable implements UserInterface, PasswordAuthenticatedUserInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -31,14 +31,11 @@ class Responsable implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $password = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 50)]
     private ?string $firstname = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 50)]
     private ?string $lastname = null;
-
-    #[ORM\Column]
-    private ?int $id_staff = null;
 
     public function getId(): ?int
     {
@@ -133,18 +130,6 @@ class Responsable implements UserInterface, PasswordAuthenticatedUserInterface
     public function setLastname(string $lastname): static
     {
         $this->lastname = $lastname;
-
-        return $this;
-    }
-
-    public function getIdStaff(): ?int
-    {
-        return $this->id_staff;
-    }
-
-    public function setIdStaff(int $id_staff): static
-    {
-        $this->id_staff = $id_staff;
 
         return $this;
     }
