@@ -3,14 +3,18 @@
 namespace App\Controller\Admin;
 
 use App\Entity\User;
+use App\Entity\Child;
+use App\Entity\Calendar;
 
-use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
+use Symfony\Component\HttpFoundation\Response;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
+use App\Controller\Admin\ResponsableCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Config\UserMenu;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\HttpFoundation\Response;
+use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
+use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 
 #[AdminDashboard(routePath: '/admin', routeName: 'admin')]
 class DashboardController extends AbstractDashboardController
@@ -45,14 +49,24 @@ class DashboardController extends AbstractDashboardController
         return Dashboard::new()
             ->setTitle('<img src="/images/arbre.png" width="30px" height="30px"> LaCrèche.org')
             ->setFaviconPath('/images/favicon.ico')
-            ->setDefaultColorScheme('dark')
+            ->disableDarkMode()
             ;
     }
 
     public function configureMenuItems(): iterable
     {
-        yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
+        yield MenuItem::linkToCrud('Calendrier', 'fas fa-calendar-days', Calendar::class);
+        yield MenuItem::linkToCrud('Enfants', 'fas fa-list', Child::class);
+        yield MenuItem::linkToCrud('Responsables', 'fas fa-user-tie', User::class)
+        ->setController(ResponsableCrudController::class);
         yield MenuItem::linkToCrud('Utilisateurs', 'fas fa-users', User::class);
-        // yield MenuItem::linkToCrud('The Label', 'fas fa-list', EntityClass::class);
+        
     }
+
+    // public function configureAssets(): Assets 
+    // {
+    //     return Assets::new()
+    //         ->addJsFile('build/app.js')
+    //         ;
+    // }
 }

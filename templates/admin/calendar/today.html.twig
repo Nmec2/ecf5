@@ -1,0 +1,14 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block page_title %}Calendrier du jour{% endblock %}
+
+{% block content %}
+    {% if calendar %}
+        <h2>Jour : {{ calendar.date|date('d/m/Y') }}</h2>
+        <p>Semaine : {{ calendar.week }}</p>
+        <p>Jour : {{ calendar.day }}</p>
+        <p>Ouvert : {{ calendar.isopen ? 'Oui' : 'Non' }}</p>
+    {% else %}
+        <p>Aucune entrée pour aujourd'hui.</p>
+    {% endif %}
+{% endblock %}

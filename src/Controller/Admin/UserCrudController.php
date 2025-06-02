@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
@@ -76,5 +77,13 @@ class UserCrudController extends AbstractCrudController
                 ->setHelp('Laisse vide pour garder le mot de passe actuel')
                 ->setFormTypeOption('attr', ['type' => 'password']),
         ];
+    }
+    public function configureCrud(Crud $crud): Crud
+    {
+        return $crud
+            ->setPageTitle(Crud::PAGE_INDEX, 'Utilisateurs')
+            ->setPageTitle(Crud::PAGE_EDIT, fn (User $user) => 'Modifier ' . $user->getEmail())
+            ->setPageTitle(Crud::PAGE_NEW, 'Créer un nouvel utilisateur')
+            ->setPageTitle(Crud::PAGE_DETAIL, fn (User $user) => 'Détail : ' . $user->getEmail());
     }
 }

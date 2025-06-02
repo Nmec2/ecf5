@@ -13,3 +13,7 @@
     --color-grey-300: oklch(0.32 0.013 17.85);
     --color-white: oklch(0.8853 0 0);
 }
+
+aside {
+    background: var(--color-green-300);
+}

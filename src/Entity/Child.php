@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ChildRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -25,6 +27,17 @@ class Child
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $comment = null;
+
+    /**
+     * @var Collection<int, User>
+     */
+    #[ORM\ManyToMany(targetEntity: User::class)]
+    private Collection $Responsables;
+
+    public function __construct()
+    {
+        $this->Responsables = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -75,6 +88,30 @@ class Child
     public function setComment(string $comment): static
     {
         $this->comment = $comment;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getResponsables(): Collection
+    {
+        return $this->Responsables;
+    }
+
+    public function addResponsable(User $responsable): static
+    {
+        if (!$this->Responsables->contains($responsable)) {
+            $this->Responsables->add($responsable);
+        }
+
+        return $this;
+    }
+
+    public function removeResponsable(User $responsable): static
+    {
+        $this->Responsables->removeElement($responsable);
 
         return $this;
     }
