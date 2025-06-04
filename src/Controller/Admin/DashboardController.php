@@ -5,9 +5,14 @@ namespace App\Controller\Admin;
 use App\Entity\User;
 use App\Entity\Child;
 use App\Entity\Calendar;
+use App\Entity\Presence;
 
+use Symfony\Component\Routing\Route;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Controller\Admin\ResponsableCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Config\UserMenu;
@@ -19,30 +24,53 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 #[AdminDashboard(routePath: '/admin', routeName: 'admin')]
 class DashboardController extends AbstractDashboardController
 {
+    public function __construct(
+        private EntityManagerInterface $entityManager
+    ) {}
+
     public function index(): Response
     {
-        // return parent::index();
+        $currentWeek = (int) (new \DateTimeImmutable())->format('W');
+        $currentYear = (int) (new \DateTimeImmutable())->format('Y');
 
-        // Option 1. You can make your dashboard redirect to some common page of your backend
-        //
-        // 1.1) If you have enabled the "pretty URLs" feature:
-        // return $this->redirectToRoute('admin_user_index');
-        //
-        // 1.2) Same example but using the "ugly URLs" that were used in previous EasyAdmin versions:
-        // $adminUrlGenerator = $this->container->get(AdminUrlGenerator::class);
-        // return $this->redirect($adminUrlGenerator->setController(OneOfYourCrudController::class)->generateUrl());
+        $startOfWeek = (new \DateTimeImmutable())->setISODate($currentYear, $currentWeek, 0);
+        $endOfWeek = (new \DateTimeImmutable())->setISODate($currentYear, $currentWeek, 7)->setTime(23, 59, 59);
 
-        // Option 2. You can make your dashboard redirect to different pages depending on the user
-        //
-        // if ('jane' === $this->getUser()->getUsername()) {
-        //     return $this->redirectToRoute('...');
-        // }
+        $currentDayWeek = $this->entityManager
+            ->getRepository(Calendar::class)
+            ->createQueryBuilder('c')
+            ->where('c.date >= :startDate')
+            ->andWhere('c.date <= :endDate')
+            ->setParameter('startDate', $startOfWeek)
+            ->setParameter('endDate', $endOfWeek)
+            ->orderBy('c.date', 'ASC')
+            ->getQuery()
+            ->getResult();
 
-        // Option 3. You can render some custom template to display a proper dashboard with widgets, etc.
-        // (tip: it's easier if your template extends from @EasyAdmin/page/content.html.twig)
-        //
-        return $this->render('admin/main/index.html.twig');
+        $dayCalendar = [];
+
+        foreach ($currentDayWeek as $day) {
+
+            $dayCalendar[] = [
+                'date' => $day->getDate(),
+                'jour' => $day->getDay(),
+                'mois' => $day->getMois(),
+                'isopen' => $day->isopen(),
+                'formatted_date' => $day->getDate()->format('d/m/Y'),
+                'day_number' => $day->getDate()->format('d'),
+            ];
+        }
+
+        return $this->render('admin/main/index.html.twig', [
+            'currentWeek' => $currentWeek,
+            'currentYear' => $currentYear,
+            'joursCalendrier' => $dayCalendar,
+            'startOfWeek' => $startOfWeek,
+            'endOfWeek' => $endOfWeek,
+        ]);
     }
+
+
 
     public function configureDashboard(): Dashboard
     {
@@ -55,6 +83,7 @@ class DashboardController extends AbstractDashboardController
 
     public function configureMenuItems(): iterable
     {
+        yield MenuItem::linkToDashboard('Tableau de bord', 'fa fa-home');
         yield MenuItem::linkToCrud('Enfants', 'fas fa-list', Child::class);
         yield MenuItem::linkToCrud('Responsables', 'fas fa-user-tie', User::class)
         ->setController(ResponsableCrudController::class);
@@ -62,6 +91,8 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Calendrier', 'fas fa-calendar-days', Calendar::class);
         
     }
+
+    
 
     // public function configureAssets(): Assets 
     // {

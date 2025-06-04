@@ -22,6 +22,9 @@ class Calendar
     #[ORM\Column]
     private ?int $Week = null;
 
+    #[ORM\Column(type: 'string')]
+    private ?string $mois = null;
+
     #[ORM\Column]
     private ?bool $isopen = null;
 
@@ -62,6 +65,18 @@ class Calendar
     public function setWeek(int $Week): static
     {
         $this->Week = $Week;
+
+        return $this;
+    }
+
+    public function getMois(): ?string
+    {
+        return $this->mois;
+    }
+
+    public function setMois(string $mois): self
+    {
+        $this->mois = $mois;
 
         return $this;
     }
