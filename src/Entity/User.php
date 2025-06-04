@@ -163,4 +163,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
+    public function __toString(): string
+    {
+        return $this->getFirstname() . ' ' . $this->getLastname(); 
+    }
+
+    public function isResponsable(): bool
+    {
+        return !in_array('ROLE_ADMIN', $this->roles) && !in_array('ROLE_STAFF', $this->roles);
+    }
 }
