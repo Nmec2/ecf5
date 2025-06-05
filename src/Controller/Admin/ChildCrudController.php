@@ -4,15 +4,16 @@ namespace App\Controller\Admin;
 
 use App\Entity\Child;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Asset;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 
 class ChildCrudController extends AbstractCrudController
 {
@@ -31,7 +32,6 @@ class ChildCrudController extends AbstractCrudController
             TextAreaField::new('comment', 'Commentaire'),
             AssociationField::new('Responsables', 'Responsables')
                 ->setFormTypeOption('by_reference', false)
-                ->setFormTypeOption('multiple', true)
                 ->setQueryBuilder(function ($qb) {
                     return $qb->andWhere('entity.roles NOT LIKE :role')
                             ->setParameter('role', '%ROLE_ADMIN%')
@@ -50,6 +50,7 @@ class ChildCrudController extends AbstractCrudController
                 })
             ];
     }
+
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
