@@ -7,7 +7,7 @@ use App\Entity\Child;
 use App\Entity\Calendar;
 use App\Entity\Presence;
 
-use Symfony\Component\Routing\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -30,11 +30,23 @@ class DashboardController extends AbstractDashboardController
 
     public function index(): Response
     {
-        $currentWeek = (int) (new \DateTimeImmutable())->format('W');
-        $currentYear = (int) (new \DateTimeImmutable())->format('Y');
+        $request = $this->container->get('request_stack')->getCurrentRequest();
+        $date = $request->query->get('date');
+
+        if ($date) {
+            $date = new \DateTimeImmutable($date);
+        } else {
+            $date = new \DateTimeImmutable();
+        }
+
+        $currentWeek = (int) $date->format('W');
+        $currentYear = (int) $date->format('Y');
 
         $startOfWeek = (new \DateTimeImmutable())->setISODate($currentYear, $currentWeek, 0);
         $endOfWeek = (new \DateTimeImmutable())->setISODate($currentYear, $currentWeek, 7)->setTime(23, 59, 59);
+
+        $previousWeekStartDate = $startOfWeek->modify('-7 days');
+        $nextWeekStartDate = $startOfWeek->modify('+8 days');
 
         $currentDayWeek = $this->entityManager
             ->getRepository(Calendar::class)
@@ -47,11 +59,28 @@ class DashboardController extends AbstractDashboardController
             ->getQuery()
             ->getResult();
 
+
+        $children = $this->entityManager->getRepository(Child::class)->findAll();
+
+        $presences = $this->entityManager->getRepository(Presence::class)
+            ->createQueryBuilder('p')
+            ->join('p.child', 'child')
+            ->join('p.calendar', 'calendar')
+            ->where('calendar.date BETWEEN :start AND :end')
+            ->setParameter('start', $startOfWeek)
+            ->setParameter('end', $endOfWeek)
+            ->getQuery()
+            ->getResult();
+
+        $presenceMap = [];
+        foreach ($presences as $presence){
+            $presenceMap[$presence->getChild()->getId()][$presence->getCalendar()->getId()] = $presence->isPresent();
+        }
+
         $dayCalendar = [];
-
         foreach ($currentDayWeek as $day) {
-
             $dayCalendar[] = [
+                'id' => $day->getId(),
                 'date' => $day->getDate(),
                 'jour' => $day->getDay(),
                 'mois' => $day->getMois(),
@@ -65,12 +94,47 @@ class DashboardController extends AbstractDashboardController
             'currentWeek' => $currentWeek,
             'currentYear' => $currentYear,
             'joursCalendrier' => $dayCalendar,
+            'children' => $children,
+            'presenceMap' => $presenceMap,
             'startOfWeek' => $startOfWeek,
             'endOfWeek' => $endOfWeek,
+            'previousWeekStartDate' => $previousWeekStartDate,
+            'nextWeekStartDate' => $nextWeekStartDate,
         ]);
     }
 
+    #[Route('/admin/presence/update', name: 'admin_presence_update', methods: ['POST'])]
+    public function updatePresences(Request $request): Response
+    {
+        $presences = $request->request->all()['presences'] ?? [];
 
+        foreach ($presences as $childId => $days) {
+            $child = $this->entityManager->getRepository(Child::class)->find($childId);
+            
+            foreach ($days as $calendarId => $isPresent) {
+                $calendar = $this->entityManager->getRepository(Calendar::class)->find($calendarId);
+                
+                $presence = $this->entityManager->getRepository(Presence::class)->findOneBy([
+                    'child' => $child,
+                    'calendar' => $calendar
+                ]);
+
+                if (!$presence) {
+                    $presence = new Presence();
+                    $presence->setChild($child);
+                    $presence->setCalendar($calendar);
+                    $this->entityManager->persist($presence);
+                }
+
+                $presence->setPresent(true);
+            }
+        }
+
+        $this->entityManager->flush();
+        
+        $this->addFlash('success', 'Les présences ont été mises à jour');
+        return $this->redirectToRoute('admin');
+    }
 
     public function configureDashboard(): Dashboard
     {
@@ -101,3 +165,5 @@ class DashboardController extends AbstractDashboardController
     //         ;
     // }
 }
+
+

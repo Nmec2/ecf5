@@ -18,4 +18,66 @@ aside {
     background: var(--color-green-300);
 }
 
+.week-navigation {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+}
 
+.week-navigation .btn-group {
+    gap: 0.5rem;
+}
+
+.form-control[type="week"] {
+    max-width: 200px;
+}
+
+.presence-table {
+    font-size: 0.9em;
+}
+
+.presence-cell {
+    text-align: center;
+    padding: 8px 4px;
+    border: 1px solid #dee2e6;
+}
+
+.presence-checkbox {
+    transform: scale(1.2);
+    cursor: pointer;
+}
+
+.child-name {
+    font-weight: bold;
+    background-color: #f8f9fa;
+    padding: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.day-header {
+    background-color: #007bff;
+    color: white;
+    text-align: center;
+    font-weight: bold;
+    padding: 10px 5px;
+}
+
+.day-closed {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-save-presences {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.week-navigation {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}

@@ -6,64 +6,204 @@
 {% endblock %}
 
 {% block main %}
-    <div class="card">
-        <div class="card-header">
-            <h4><i class="fas fa-calendar-week"></i> Calendrier de la semaine {{ currentWeek }}</h4>
+    <!-- Navigation de semaine -->
+    <div class="row align-items-center">
+        <div class="col-md-6">
+            <h4><i class="fas fa-calendar-week"></i> Semaine {{ currentWeek }} - {{ currentYear }}</h4>
             <small class="text-muted">Du {{ startOfWeek|date('d/m/Y') }} au {{ endOfWeek|date('d/m/Y') }}</small>
         </div>
+        <div class="col-md-6 text-end">
+            <div class="btn-group" role="group">
+                <a href="{{ path('admin', {'date': previousWeekStartDate|date('Y-m-d') }) }}" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-chevron-left"></i> Semaine précédente
+                </a>
+                <input type="date" class="" value="{{ startOfWeek|date('Y-m-d')}}" onchange="window.location = '{{ path('admin') }}?date=' + this.value">
+                <a href="{{ path('admin', {'date': nextWeekStartDate|date('Y-m-d') }) }}" class="btn btn-outline-primary btn-sm">
+                    Semaine suivante <i class="fas fa-chevron-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Messages flash -->
+    {% for flash_error in app.flashes('error') %}
+        <div class="alert alert-danger">{{ flash_error }}</div>
+    {% endfor %}
+    {% for flash_notice in app.flashes('success') %}
+        <div class="alert alert-success">{{ flash_notice }}</div>
+    {% endfor %}
+
+    <!-- Tableau des présences -->
+    <div class="card">
+        <div class="card-header">
+            <h5><i class="fas fa-user-check"></i> Gestion des présences</h5>
+        </div>
         <div class="card-body">
-            {% if joursCalendrier|length > 0 %}
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>Jour</th>
-                                <th>Date</th>
-                                <th>Mois</th>
-                                <th>Statut</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for jour in joursCalendrier %}
-                                <tr class="{% if jour.isopen == 1 %}table-success{% else %}table-danger{% endif %}">
-                                    <td><strong>{{ jour.jour }}</strong></td>
-                                    <td>{{ jour.formatted_date }}</td>
-                                    <td>{{ jour.mois }}</td>
-                                    <td>
-                                        {% if jour.isopen == 1 %}
-                                            <span class="badge bg-success">
-                                                <i class="fas fa-check"></i> Ouvert
-                                            </span>
-                                        {% else %}
-                                            <span class="badge bg-danger">
-                                                <i class="fas fa-times"></i> Fermé
-                                            </span>
-                                        {% endif %}
-                                    </td>
+            {% if children|length > 0 and joursCalendrier|length > 0 %}
+                <form method="post" action="{{ path('admin_presence_update') }}" id="presenceForm">
+                    <div class="table-responsive">
+                        <table class="table table-bordered presence-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 200px;">Enfant</th>
+                                    {% for jour in joursCalendrier %}
+                                        <th class="day-header {% if not jour.isopen %}day-closed{% endif %}">
+                                            {{ jour.jour }}<br>
+                                            <small>{{ jour.day_number }}/{{ jour.mois }}</small>
+                                            {% if not jour.isopen %}
+                                                <br><small><i class="fas fa-times"></i> Fermé</small>
+                                            {% endif %}
+                                        </th>
+                                    {% endfor %}
                                 </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                
-                <!-- Résumé -->
-                <div class="mt-3">
-                    {% set joursOuverts = joursCalendrier|filter(j => j.isopen == 1)|length %}
-                    {% set joursFermes = joursCalendrier|filter(j => j.isopen == 0)|length %}
-                    
-                    <div class="alert alert-info">
-                        <strong>Résumé :</strong> 
-                        {{ joursOuverts }} jour(s) ouvert(s) et {{ joursFermes }} jour(s) fermé(s) cette semaine.
+                            </thead>
+                            <tbody>
+                                {% for child in children %}
+                                    <tr>
+                                        <td class="child-name">
+                                            <i class="fas fa-child"></i> {{ child.lastname }} {{ child.firstname }}
+                                            {% if child.age is defined %}
+                                                <br><small class="text-muted">{{ child.age }} ans</small>
+                                            {% endif %}
+                                        </td>
+                                        {% for jour in joursCalendrier %}
+                                            <td class="presence-cell {% if not jour.isopen %}bg-light{% endif %}">
+                                                {% if jour.isopen %}
+                                                    {% set isPresent = presenceMap[child.id][jour.id] is defined and presenceMap[child.id][jour.id] %}
+                                                    <input type="checkbox" 
+                                                           class="presence-checkbox form-check-input" 
+                                                           name="presences[{{ child.id }}][{{ jour.id }}]" 
+                                                           value="1"
+                                                           {% if isPresent %}checked{% endif %}
+                                                           title="Présence de {{ child.lastname }} {{ child.firstname }} le {{ jour.formatted_date }}">
+                                                {% else %}
+                                                    <i class="fas fa-ban text-muted" title="Crèche fermée"></i>
+                                                {% endif %}
+                                            </td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
-                </div>
+                    
+                    <!-- Boutons d'action -->
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Enregistrer les présences
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="selectAll()">
+                            <i class="fas fa-check-square"></i> Tout sélectionner
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="unselectAll()">
+                            <i class="fas fa-square"></i> Tout désélectionner
+                        </button>
+                    </div>
+                </form>
             {% else %}
                 <div class="alert alert-warning">
                     <i class="fas fa-exclamation-triangle"></i>
-                    Aucune donnée trouvée pour la semaine {{ currentWeek }}.
+                    {% if children|length == 0 %}
+                        Aucun enfant inscrit trouvé.
+                    {% else %}
+                        Aucune donnée de calendrier trouvée pour la semaine {{ currentWeek }}.
+                    {% endif %}
                 </div>
             {% endif %}
         </div>
     </div>
 
-    
+    <!-- Statistiques -->
+    {% if children|length > 0 %}
+        <div class="row mt-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body text-center">
+                        <h4><i class="fas fa-users"></i></h4>
+                        <h3>{{ children|length }}</h3>
+                        <p class="mb-0">Enfants inscrits</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                        <h4><i class="fas fa-calendar-check"></i></h4>
+                        <h3>{{ joursCalendrier|filter(j => j.isopen)|length }}</h3>
+                        <p class="mb-0">Jours ouverts</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body text-center">
+                        <h4><i class="fas fa-user-check"></i></h4>
+                        <h3 id="totalPresences">0</h3>
+                        <p class="mb-0">Présences prévues</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body text-center">
+                        <h4><i class="fas fa-percentage"></i></h4>
+                        <h3 id="tauxPresence">0%</h3>
+                        <p class="mb-0">Taux de présence</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+{% endblock %}
+
+{% block body_javascript %}
+    {{ parent() }}
+    <script>
+        function selectAll() {
+            document.querySelectorAll('.presence-checkbox').forEach(function(checkbox) {
+                if (!checkbox.disabled) {
+                    checkbox.checked = true;
+                }
+            });
+            updateStats();
+        }
+
+        function unselectAll() {
+            document.querySelectorAll('.presence-checkbox').forEach(function(checkbox) {
+                checkbox.checked = false;
+            });
+            updateStats();
+        }
+
+        function updateStats() {
+            const totalChecked = document.querySelectorAll('.presence-checkbox:checked').length;
+            const totalChildren = {{ children|length }};
+            const totalOpenDays = {{ joursCalendrier|filter(j => j.isopen)|length }};
+            const maxPossible = totalChildren * totalOpenDays;
+            const tauxPresence = maxPossible > 0 ? Math.round((totalChecked / maxPossible) * 100) : 0;
+
+            document.getElementById('totalPresences').textContent = totalChecked;
+            document.getElementById('tauxPresence').textContent = tauxPresence + '%';
+        }
+
+        // Mise à jour des stats au chargement et à chaque changement
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStats();
+            
+            document.querySelectorAll('.presence-checkbox').forEach(function(checkbox) {
+                checkbox.addEventListener('change', updateStats);
+            });
+        });
+
+        // Confirmation avant soumission
+        document.getElementById('presenceForm').addEventListener('submit', function(e) {
+            const totalChecked = document.querySelectorAll('.presence-checkbox:checked').length;
+            if (totalChecked === 0) {
+                if (!confirm('Aucune présence n\'est cochée. Êtes-vous sûr de vouloir continuer ?')) {
+                    e.preventDefault();
+                }
+            }
+        });
+    </script>
 {% endblock %}

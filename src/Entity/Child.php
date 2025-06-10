@@ -34,9 +34,16 @@ class Child
     #[ORM\ManyToMany(targetEntity: User::class)]
     private Collection $Responsables;
 
+    /**
+     * @var Collection<int, Presence>
+     */
+    #[ORM\OneToMany(targetEntity: Presence::class, mappedBy: 'child')]
+    private Collection $presences;
+
     public function __construct()
     {
         $this->Responsables = new ArrayCollection();
+        $this->presences = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -112,6 +119,36 @@ class Child
     public function removeResponsable(User $responsable): static
     {
         $this->Responsables->removeElement($responsable);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Presence>
+     */
+    public function getPresences(): Collection
+    {
+        return $this->presences;
+    }
+
+    public function addPresence(Presence $presence): static
+    {
+        if (!$this->presences->contains($presence)) {
+            $this->presences->add($presence);
+            $presence->setChild($this);
+        }
+
+        return $this;
+    }
+
+    public function removePresence(Presence $presence): static
+    {
+        if ($this->presences->removeElement($presence)) {
+            // set the owning side to null (unless already changed)
+            if ($presence->getChild() === $this) {
+                $presence->setChild(null);
+            }
+        }
 
         return $this;
     }
