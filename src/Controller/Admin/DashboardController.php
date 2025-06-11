@@ -62,7 +62,7 @@ class DashboardController extends AbstractDashboardController
 
         $user = $this->getUser();
 
-        if($this->isGranted('ROLE_USER') && !$this->isGranted('ROLE_ADMIN')){
+        if($this->isGranted('ROLE_USER') && !$this->isGranted('ROLE_ADMIN') && !$this->isGranted('ROLE_STAFF')){
             $children = $this->entityManager->getRepository(Child::class)
                 ->createQueryBuilder('c')
                 ->join('c.Responsables', 'r')

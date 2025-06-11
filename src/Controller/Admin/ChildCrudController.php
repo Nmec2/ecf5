@@ -84,7 +84,7 @@ class ChildCrudController extends AbstractCrudController
     public function createIndexQueryBuilder(SearchDto $searchDto, EntityDto $entityDto, FieldCollection $fields, FilterCollection $filters): QueryBuilder{
         $queryBuilder = parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters);
 
-        if($this->isGranted('ROLE_USER') && !$this->isGranted('ROLE_ADMIN')){
+        if($this->isGranted('ROLE_USER') && !$this->isGranted('ROLE_ADMIN') && !$this->isGranted('ROLE_STAFF')){
             $user = $this->getUser();
             $queryBuilder
                 ->join('entity.Responsables', 'r')
