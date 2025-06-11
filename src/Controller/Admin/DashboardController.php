@@ -7,6 +7,7 @@ use App\Entity\Child;
 use App\Entity\Calendar;
 use App\Entity\Presence;
 
+
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -59,8 +60,19 @@ class DashboardController extends AbstractDashboardController
             ->getQuery()
             ->getResult();
 
+        $user = $this->getUser();
 
-        $children = $this->entityManager->getRepository(Child::class)->findAll();
+        if($this->isGranted('ROLE_USER')){
+            $children = $this->entityManager->getRepository(Child::class)
+                ->createQueryBuilder('c')
+                ->join('c.Responsables', 'r')
+                ->where('r.id = :userId')
+                ->setParameter('userId', $user->getId())
+                ->getQuery()
+                ->getResult();
+        } else {
+            $children = $this->entityManager->getRepository(Child::class)->findAll();
+        }
 
         $presences = $this->entityManager->getRepository(Presence::class)
             ->createQueryBuilder('p')
@@ -148,12 +160,13 @@ class DashboardController extends AbstractDashboardController
     public function configureMenuItems(): iterable
     {
         yield MenuItem::linkToDashboard('Tableau de bord', 'fa fa-home');
-        yield MenuItem::linkToCrud('Enfants', 'fas fa-list', Child::class);
-        yield MenuItem::linkToCrud('Responsables', 'fas fa-user-tie', User::class)
-        ->setController(ResponsableCrudController::class);
-        yield MenuItem::linkToCrud('Utilisateurs', 'fas fa-users', User::class);
-        yield MenuItem::linkToCrud('Calendrier', 'fas fa-calendar-days', Calendar::class);
-        
+        yield MenuItem::linkToCrud('Enfants', 'fas fa-child', Child::class);
+        if($this->isGranted('ROLE_ADMIN')){
+            yield MenuItem::linkToCrud('Responsables', 'fas fa-user-tie', User::class)
+            ->setController(ResponsableCrudController::class);
+            yield MenuItem::linkToCrud('Utilisateurs', 'fas fa-users', User::class);
+            yield MenuItem::linkToCrud('Calendrier', 'fas fa-calendar-days', Calendar::class);
+        }
     }
 
     

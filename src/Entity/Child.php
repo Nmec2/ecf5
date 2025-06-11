@@ -32,8 +32,10 @@ class Child
      * @var Collection<int, User>
      */
     #[ORM\ManyToMany(targetEntity: User::class)]
+    #[ORM\JoinTable(name: "child_user")]
     private Collection $Responsables;
 
+    
     /**
      * @var Collection<int, Presence>
      */

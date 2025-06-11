@@ -44,15 +44,15 @@ class CustomAuthenticator extends AbstractLoginFormAuthenticator
         }
 
         // Redirection selon rôle
-        if (in_array('ROLE_ADMIN', $user->getRoles(), true)) {
-            return new RedirectResponse($this->router->generate('admin')); // EasyAdmin
-        }
+        // if (in_array('ROLE_ADMIN', $user->getRoles(), true)) {
+        //     return new RedirectResponse($this->router->generate('admin')); // EasyAdmin
+        // }
 
-        if (in_array('ROLE_STAFF', $user->getRoles(), true)) {
-            return new RedirectResponse($this->router->generate('staff_dashboard'));
-        }
+        // if (in_array('ROLE_STAFF', $user->getRoles(), true)) {
+        //     return new RedirectResponse($this->router->generate('staff_dashboard'));
+        // }
 
-        return new RedirectResponse($this->router->generate('app_main'));
+        return new RedirectResponse($this->router->generate('admin'));
     }
 
     protected function getLoginUrl(Request $request): string

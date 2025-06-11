@@ -6,7 +6,6 @@
 {% endblock %}
 
 {% block main %}
-    <!-- Navigation de semaine -->
     <div class="row align-items-center">
         <div class="col-md-6">
             <h4><i class="fas fa-calendar-week"></i> Semaine {{ currentWeek }} - {{ currentYear }}</h4>
@@ -24,16 +23,12 @@
             </div>
         </div>
     </div>
-
-    <!-- Messages flash -->
     {% for flash_error in app.flashes('error') %}
         <div class="alert alert-danger">{{ flash_error }}</div>
     {% endfor %}
     {% for flash_notice in app.flashes('success') %}
         <div class="alert alert-success">{{ flash_notice }}</div>
     {% endfor %}
-
-    <!-- Tableau des présences -->
     <div class="card">
         <div class="card-header">
             <h5><i class="fas fa-user-check"></i> Gestion des présences</h5>
@@ -86,8 +81,7 @@
                             </tbody>
                         </table>
                     </div>
-                    
-                    <!-- Boutons d'action -->
+
                     <div class="mt-3">
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-save"></i> Enregistrer les présences
@@ -112,49 +106,6 @@
             {% endif %}
         </div>
     </div>
-
-    <!-- Statistiques -->
-    {% if children|length > 0 %}
-        <div class="row mt-4">
-            <div class="col-md-3">
-                <div class="card bg-primary text-white">
-                    <div class="card-body text-center">
-                        <h4><i class="fas fa-users"></i></h4>
-                        <h3>{{ children|length }}</h3>
-                        <p class="mb-0">Enfants inscrits</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card bg-success text-white">
-                    <div class="card-body text-center">
-                        <h4><i class="fas fa-calendar-check"></i></h4>
-                        <h3>{{ joursCalendrier|filter(j => j.isopen)|length }}</h3>
-                        <p class="mb-0">Jours ouverts</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card bg-warning text-white">
-                    <div class="card-body text-center">
-                        <h4><i class="fas fa-user-check"></i></h4>
-                        <h3 id="totalPresences">0</h3>
-                        <p class="mb-0">Présences prévues</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card bg-info text-white">
-                    <div class="card-body text-center">
-                        <h4><i class="fas fa-percentage"></i></h4>
-                        <h3 id="tauxPresence">0%</h3>
-                        <p class="mb-0">Taux de présence</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    {% endif %}
-
 {% endblock %}
 
 {% block body_javascript %}
@@ -196,7 +147,7 @@
             });
         });
 
-        // Confirmation avant soumission
+
         document.getElementById('presenceForm').addEventListener('submit', function(e) {
             const totalChecked = document.querySelectorAll('.presence-checkbox:checked').length;
             if (totalChecked === 0) {

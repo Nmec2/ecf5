@@ -3,6 +3,11 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Child;
+use Doctrine\ORM\QueryBuilder;
+use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
+use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
+use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
+use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Asset;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -57,7 +62,8 @@ class ChildCrudController extends AbstractCrudController
             ->setPageTitle(Crud::PAGE_INDEX, 'Enfants')
             ->setPageTitle(Crud::PAGE_EDIT, 'Modifier les informations')
             ->setPageTitle(Crud::PAGE_NEW, 'Ajouter un nouvel enfant')
-            ->setPageTitle(Crud::PAGE_DETAIL, 'Détail de l\'enfant');
+            ->setPageTitle(Crud::PAGE_DETAIL, 'Détail de l\'enfant')
+            ;
     }
 
     public function configureActions(Actions $actions): Actions
@@ -66,6 +72,26 @@ class ChildCrudController extends AbstractCrudController
             ->add('index', Action::new('addResponsable', 'Ajouter un responsable')
                 ->linkToCrudAction('edit')
                 ->setIcon('fa fa-user-plus')
-        );
+        )
+        ->setPermission(Action::NEW, 'ROLE_ADMIN')
+        ->setPermission(Action::EDIT, 'ROLE_ADMIN')
+        ->setPermission(Action::DETAIL, 'ROLE_ADMIN')
+        ->setPermission(Action::DELETE, 'ROLE_ADMIN')
+        ->setPermission('addResponsable', 'ROLE_ADMIN')
+        ;
+    }
+
+    public function createIndexQueryBuilder(SearchDto $searchDto, EntityDto $entityDto, FieldCollection $fields, FilterCollection $filters): QueryBuilder{
+        $queryBuilder = parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters);
+
+        if($this->isGranted('ROLE_USER') && !$this->isGranted('ROLE_ADMIN')){
+            $user = $this->getUser();
+            $queryBuilder
+                ->join('entity.Responsables', 'r')
+                ->andWhere('r.id = :userId')
+                ->setParameter('userId', $user->getId());
+        }
+
+        return $queryBuilder;
     }
 }
